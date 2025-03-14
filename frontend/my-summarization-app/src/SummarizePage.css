@@ -1,0 +1,23 @@
+textarea {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  button:disabled {
+    background-color: #6c757d;
+  }
+  
+  h3 {
+    margin-top: 20px;
+  }
+  
