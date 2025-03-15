@@ -1,6 +1,7 @@
 import React from 'react';
 import SummarizePage from './SummarizePage';
 import YoutubeSummarizePage from './YoutubeSummarizePage';
+import TranslationPage from "./TranslationPage";
 
 
 function App() {
@@ -9,6 +10,8 @@ function App() {
       <SummarizePage />
       <hr />
       <YoutubeSummarizePage />
+      <hr />
+      <TranslationPage />
     </div>
   );
 }

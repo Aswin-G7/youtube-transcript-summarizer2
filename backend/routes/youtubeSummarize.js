@@ -10,7 +10,10 @@ let summarizer;
 (async () => {
   try {
     console.log("[INFO] Loading summarization model...");
-    summarizer = await pipeline("summarization", "Xenova/bart-large-cnn");
+    summarizer = await pipeline("summarization", "Xenova/bart-large-cnn", {
+      // Force WebGPU backend
+      device: "webgpu",
+    });
     console.log("[INFO] Summarization model loaded successfully.");
   } catch (error) {
     console.error("[ERROR] Failed to load summarization model:", error);
@@ -108,6 +111,9 @@ router.get("/stream", async (req, res) => {
     const chunks = splitTextIntoChunks(youtubeTranscript);
     console.log(`[INFO] Splitting transcript into ${chunks.length} chunks`);
 
+    // Store summarized text for translation
+    req.app.locals.summarizedText = [];
+
     // Process each chunk and send the summary to the frontend in real-time
     for (let i = 0; i < chunks.length; i++) {
       try {
@@ -116,6 +122,9 @@ router.get("/stream", async (req, res) => {
           max_length: 200,
           min_length: 80,
         });
+
+        // Store summary chunk
+        req.app.locals.summarizedText.push(summary[0].summary_text);
 
         // Send summary chunk to client
         res.write(`data: ${JSON.stringify({ summary: summary[0].summary_text })}\n\n`);
@@ -128,6 +137,10 @@ router.get("/stream", async (req, res) => {
       }
     }
 
+    // Store complete summarized text for translation
+    req.app.locals.fullSummary = req.app.locals.summarizedText.join(" ");
+    console.log(`[INFO] Full summary stored for translation: ${req.app.locals.fullSummary.length} characters`);
+
     // End the stream
     res.write('data: {"status": "done"}\n\n');
     res.end();
@@ -138,3 +151,7 @@ router.get("/stream", async (req, res) => {
 });
 
 export default router;
+
+
+
+//do the translation of the summarized text
