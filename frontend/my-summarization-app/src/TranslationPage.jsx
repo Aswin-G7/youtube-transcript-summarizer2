@@ -37,6 +37,7 @@ const TranslationPage = () => {
         setError(data.error || "Translation failed.");
       }
     } catch (err) {
+      console.log(err);
       setError("Server error. Please try again.");
     }
 
