@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./YoutubeSummarizePage.css";
 
 const YoutubeSummarizePage = () => {
   const [url, setUrl] = useState("");
@@ -48,12 +49,27 @@ const YoutubeSummarizePage = () => {
   };
 
   return (
-    <div>
+    <div className="youtube-summarization-container">
       <h1>YouTube Video Summarization</h1>
-      <input type="text" value={url} onChange={handleInputChange} placeholder="Enter YouTube video URL" />
-      <button onClick={handleSummarize} disabled={isLoading}>{isLoading ? "Summarizing..." : "Summarize"}</button>
-      <h3>Summary:</h3>
-      <p>{summary.join(" ")}</p>
+      <input
+        type="text"
+        className="youtube-url-input"
+        value={url}
+        onChange={handleInputChange}
+        placeholder="Enter YouTube video URL"
+      />
+      <br />
+      <button
+        className="youtube-summarization-button"
+        onClick={handleSummarize}
+        disabled={isLoading}
+      >
+        {isLoading ? "Summarizing..." : "Summarize"}
+      </button>
+      <div className="youtube-summarization-summary">
+        <h3>Summary:</h3>
+        <p>{summary.join(" ")}</p>
+      </div>
     </div>
   );
 };

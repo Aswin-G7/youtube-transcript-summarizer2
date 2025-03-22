@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./TranslationPage.css";
 
 const TranslationPage = () => {
   const [targetLang, setTargetLang] = useState("es"); // Default: Spanish
@@ -13,6 +14,7 @@ const TranslationPage = () => {
     { code: "fr", name: "French" },
     { code: "de", name: "German" },
     { code: "hi", name: "Hindi" },
+    { code: "ta", name: "Tamil"}
   ];
 
   const handleTranslate = async () => {
@@ -42,24 +44,33 @@ const TranslationPage = () => {
   };
 
   return (
-    <div>
+    <div className="translation-container">
       <h2>Translate Summary</h2>
       <label>Select Language: </label>
-      <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
+      <select
+        className="translation-select"
+        value={targetLang}
+        onChange={(e) => setTargetLang(e.target.value)}
+      >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
             {lang.name}
           </option>
         ))}
       </select>
-      <button onClick={handleTranslate} disabled={loading}>
+      <br />
+      <button
+        className="translation-button"
+        onClick={handleTranslate}
+        disabled={loading}
+      >
         {loading ? "Translating..." : "Translate"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="translation-error">{error}</p>}
 
       {originalText && translatedText && (
-        <div>
+        <div className="translation-result">
           <h3>Original Summary:</h3>
           <p>{originalText}</p>
           <h3>Translated Summary ({targetLang.toUpperCase()}):</h3>

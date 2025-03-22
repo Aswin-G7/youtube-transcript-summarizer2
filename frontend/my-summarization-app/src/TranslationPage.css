@@ -1,0 +1,87 @@
+/* TranslationPage.css */
+
+/* Centered container with shadow */
+.translation-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Page title */
+  .translation-container h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Dropdown (select) styling */
+  .translation-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+  }
+  
+  .translation-select:focus {
+    border-color: #007bff;
+  }
+  
+  /* Translate button */
+  .translation-button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .translation-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Disabled button */
+  .translation-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  /* Error message styling */
+  .translation-error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  /* Translation result styling */
+  .translation-result {
+    margin-top: 20px;
+    text-align: left;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  .translation-result h3 {
+    font-size: 20px;
+    color: #444;
+    margin-bottom: 5px;
+  }
+  
+  .translation-result p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+  }
+  

@@ -1,0 +1,79 @@
+/* YoutubeSummarizePage.css */
+
+/* Container styling */
+.youtube-summarization-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Title styling */
+  .youtube-summarization-container h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Styled input field */
+  .youtube-url-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+  }
+  
+  .youtube-url-input:focus {
+    border-color: #007bff;
+  }
+  
+  /* Summarize button */
+  .youtube-summarization-button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .youtube-summarization-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Disabled button */
+  .youtube-summarization-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  /* Summary container */
+  .youtube-summarization-summary {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .youtube-summarization-summary h3 {
+    font-size: 20px;
+    color: #444;
+  }
+  
+  .youtube-summarization-summary p {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+  }
+  

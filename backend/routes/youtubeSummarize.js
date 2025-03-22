@@ -6,7 +6,7 @@ import axios from "axios"; // For sending transcript to the punctuation API
 
 const router = express.Router();
 
-const PUNCTUATION_API_URL = "https://5cd7-34-86-31-254.ngrok-free.app/punctuate"; // Update if needed
+const PUNCTUATION_API_URL = "https://0710-34-86-31-254.ngrok-free.app/punctuate"; // Update if needed
 
 // Load summarization model once at startup
 let summarizer;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "./SummarizePage.css";
 
 const SummarizePage = () => {
   const [transcript, setTranscript] = useState('');
@@ -59,20 +60,19 @@ const SummarizePage = () => {
   };
 
   return (
-    <div>
+    <div className="summarization-container">
       <h1>Real-time Transcript Summarization</h1>
       <textarea
-        rows="10"
-        cols="50"
+        className="summarization-textarea"
         value={transcript}
         onChange={handleInputChange}
         placeholder="Paste your transcript here..."
-      ></textarea>
+      />
       <br />
-      <button onClick={handleSummarize} disabled={isSummarizing}>
-        {isSummarizing ? 'Summarizing...' : 'Summarize'}
+      <button className="summarization-button" onClick={handleSummarize} disabled={isSummarizing}>
+        {isSummarizing ? "Summarizing..." : "Summarize"}
       </button>
-      <div>
+      <div className="summarization-summary">
         <h3>Summary:</h3>
         {summary.map((chunk, index) => (
           <p key={index}>{chunk}</p>
