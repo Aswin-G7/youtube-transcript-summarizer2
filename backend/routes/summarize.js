@@ -1,5 +1,7 @@
 import express from "express";
 import { pipeline } from "@xenova/transformers";
+import compromise from "compromise";
+import he from "he";
 
 const router = express.Router();
 
@@ -13,16 +15,35 @@ let summarizer;
   }
 })();
 
-// Helper function to split transcript into chunks
-const splitTextIntoChunks = (text, chunkSize = 216) => {
-  const words = text.split(" ");
+// Function to decode HTML entities
+const decodeEntities = (text) => {
+  let decoded = he.decode(text);
+  while (decoded !== he.decode(decoded)) {
+    decoded = he.decode(decoded);
+  }
+  return decoded;
+};
+
+// AI-Based Sentence Splitting using `compromise`
+const splitIntoSentences = (text) => {
+  return compromise(text).sentences().out("array");
+};
+
+// Function to chunk sentences into groups of N sentences
+const chunkSentences = (sentences, chunkSize = 5) => {
   const chunks = [];
-  while (words.length) {
-    const chunk = words.splice(0, chunkSize).join(" ");
-    chunks.push(chunk);
-    console.log("Chunk length:", chunk.split(" ").length); // Log chunk size
+  for (let i = 0; i < sentences.length; i += chunkSize) {
+    chunks.push(sentences.slice(i, i + chunkSize).join(" "));
   }
   return chunks;
+};
+
+// Function to determine summary length based on chunk size
+const getSummaryLength = (wordCount) => {
+  if (wordCount >= 100) return { min: 50, max: 60 };
+  if (wordCount >= 80) return { min: 40, max: 50 };
+  if (wordCount >= 50) return { min: 25, max: 35 };
+  return { min: 15, max: 20 }; // For very small chunks
 };
 
 // Route to handle the transcript POST request
@@ -55,24 +76,30 @@ router.get("/stream", async (req, res) => {
     }
 
     // Set the response headers for SSE
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
     // Send initial message to the client (optional)
     res.write('data: {"status": "summarizing started"}\n\n');
 
-    // Split the transcript into chunks
-    const chunks = splitTextIntoChunks(transcript);
-    console.log("Chunks to process:", chunks);
+    console.log("\nSplitting transcript into sentences...");
+    const sentences = splitIntoSentences(decodeEntities(transcript));
+
+    console.log("\nChunking sentences into groups of 5...");
+    const chunks = chunkSentences(sentences, 5);
+    console.log("Chunks to process:", chunks.length);
 
     // Process each chunk and summarize it
     for (let chunk of chunks) {
       try {
-        // Summarize each chunk
+        const wordCount = chunk.split(/\s+/).length; // Count words in the chunk
+        const { min, max } = getSummaryLength(wordCount); // Get dynamic summary length
+
         const summary = await summarizer(chunk, {
-          max_length: 200,
-          min_length: 80,
+          max_length: max,
+          min_length: min,
+          do_sample: false
         });
 
         // Send the summary as an SSE message

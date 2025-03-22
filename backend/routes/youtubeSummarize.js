@@ -2,8 +2,11 @@ import express from "express";
 import { YoutubeTranscript } from "youtube-transcript";
 import { pipeline } from "@xenova/transformers";
 import he from "he"; // For decoding HTML entities
+import axios from "axios"; // For sending transcript to the punctuation API
 
 const router = express.Router();
+
+const PUNCTUATION_API_URL = "https://5cd7-34-86-31-254.ngrok-free.app/punctuate"; // Update if needed
 
 // Load summarization model once at startup
 let summarizer;
@@ -11,8 +14,7 @@ let summarizer;
   try {
     console.log("[INFO] Loading summarization model...");
     summarizer = await pipeline("summarization", "Xenova/bart-large-cnn", {
-      // Force WebGPU backend
-      device: "webgpu",
+      device: "webgpu", // Use WebGPU for performance
     });
     console.log("[INFO] Summarization model loaded successfully.");
   } catch (error) {
@@ -29,17 +31,33 @@ const decodeEntities = (text) => {
   return decoded;
 };
 
-// Function to split text into chunks
-const splitTextIntoChunks = (text, chunkSize = 216) => {
-  const words = text.split(" ");
+// Function to split punctuated text into sentences
+const splitIntoSentences = (text) => {
+  return text.split(/(?<=[.?!:;])\s+/);
+};
+
+// Function to split sentences into chunks for summarization
+const splitTextIntoChunks = (sentences, chunkSize = 216) => {
   const chunks = [];
-  while (words.length) {
-    chunks.push(words.splice(0, chunkSize).join(" "));
+  let currentChunk = "";
+
+  sentences.forEach((sentence) => {
+    if ((currentChunk + sentence).split(" ").length > chunkSize) {
+      chunks.push(currentChunk);
+      currentChunk = sentence;
+    } else {
+      currentChunk += " " + sentence;
+    }
+  });
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
   }
+
   return chunks;
 };
 
-// Route to store the transcript and trigger summarization
+// Route to process YouTube transcript and punctuate it
 router.post("/", async (req, res) => {
   try {
     console.log("[INFO] Received request to summarize YouTube video.");
@@ -79,11 +97,27 @@ router.post("/", async (req, res) => {
     const cleanTranscript = decodeEntities(rawTranscript);
     console.log(`[INFO] Transcript processed. Length: ${cleanTranscript.length} characters`);
 
-    // Store transcript in app memory for streaming
-    req.app.locals.youtubeTranscript = cleanTranscript;
+    // Send transcript to punctuation API
+    console.log("[INFO] Sending transcript to punctuation API...");
+    const punctuationResponse = await axios.post(PUNCTUATION_API_URL, { text: cleanTranscript });
+
+    if (!punctuationResponse.data || !punctuationResponse.data.punctuated_text) {
+      console.error("[ERROR] Invalid response from punctuation API.");
+      return res.status(500).json({ error: "Failed to punctuate text." });
+    }
+
+    const punctuatedText = punctuationResponse.data.punctuated_text;
+    console.log(`[INFO] Punctuated transcript received. Length: ${punctuatedText.length} characters`);
+
+    // Split punctuated text into sentences
+    const sentences = splitIntoSentences(punctuatedText);
+    console.log(`[INFO] Split transcript into ${sentences.length} sentences`);
+
+    // Store sentences in app memory for summarization
+    req.app.locals.sentences = sentences;
 
     // Send immediate response to client
-    res.status(200).json({ message: "Transcript received, starting summarization." });
+    res.status(200).json({ message: "Punctuated transcript received, starting summarization." });
   } catch (error) {
     console.error("[ERROR] Failed to process YouTube video:", error);
     res.status(500).json({ error: "Could not process the video." });
@@ -93,10 +127,10 @@ router.post("/", async (req, res) => {
 // Route to stream summarization results using SSE
 router.get("/stream", async (req, res) => {
   try {
-    const { youtubeTranscript } = req.app.locals;
+    const { sentences } = req.app.locals;
     
-    if (!youtubeTranscript) {
-      return res.status(400).json({ error: "No transcript available." });
+    if (!sentences || sentences.length === 0) {
+      return res.status(400).json({ error: "No sentences available for summarization." });
     }
 
     // Set response headers for SSE
@@ -107,9 +141,9 @@ router.get("/stream", async (req, res) => {
     // Send initial message to client
     res.write('data: {"status": "summarizing started"}\n\n');
 
-    // Split the transcript into chunks
-    const chunks = splitTextIntoChunks(youtubeTranscript);
-    console.log(`[INFO] Splitting transcript into ${chunks.length} chunks`);
+    // Split sentences into chunks
+    const chunks = splitTextIntoChunks(sentences);
+    console.log(`[INFO] Splitting sentences into ${chunks.length} chunks`);
 
     // Store summarized text for translation
     req.app.locals.summarizedText = [];
@@ -117,10 +151,15 @@ router.get("/stream", async (req, res) => {
     // Process each chunk and send the summary to the frontend in real-time
     for (let i = 0; i < chunks.length; i++) {
       try {
-        console.log(`[INFO] Summarizing chunk ${i + 1}/${chunks.length}...`);
+        const chunkWordCount = chunks[i].split(" ").length;
+        const min_length = Math.max(20, Math.floor(chunkWordCount / 3));
+        const max_length = chunkWordCount - 10;
+
+        console.log(`[INFO] Summarizing chunk ${i + 1}/${chunks.length}... (min: ${min_length}, max: ${max_length})`);
+        
         const summary = await summarizer(chunks[i], {
-          max_length: 200,
-          min_length: 80,
+          max_length: max_length,
+          min_length: min_length,
         });
 
         // Store summary chunk
@@ -151,7 +190,3 @@ router.get("/stream", async (req, res) => {
 });
 
 export default router;
-
-
-
-//do the translation of the summarized text
