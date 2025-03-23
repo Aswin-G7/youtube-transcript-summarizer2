@@ -1,0 +1,53 @@
+.transcript-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    text-align: center;
+  }
+  
+  .show-transcript-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .show-transcript-btn.active {
+    background-color: #dc3545;
+  }
+  
+  .show-transcript-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .loading {
+    color: #ffa500;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  .transcript-content {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    text-align: left;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
